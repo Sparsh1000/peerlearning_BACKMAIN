@@ -25,7 +25,7 @@ exports.assignReviewers = async (req, res) => {
       title = await result.assignment_title
     }
   }).catch((err) => {
-    console.log(err)
+    console.log(`Cannot find the assignment : ${err}`)
   })
 
   //console.log(courseId + ' ----- ' + courseWorkId)
@@ -114,7 +114,8 @@ exports.assignReviewers = async (req, res) => {
       res.json({
         message: 'Some error occured! Please check your req again!',
       })
-      console.log(err)
+      console.log(`Some error occured! Please check your req again! ${err}`)
+      return;
     })
 
   await Assignment.findById(peerAssignmentId, async (err, result) => {
@@ -135,7 +136,7 @@ exports.assignReviewers = async (req, res) => {
       log.time_stamp = new Date()
       log.save().then(
         (r) => {
-          console.log('Saved Log')
+          console.log('Saved Log for assigned reviewers')
         },
         (err) => {
           console.log('ERROR while saving the log!')
@@ -144,34 +145,63 @@ exports.assignReviewers = async (req, res) => {
     }
   })
 
-  const data = {
-    courseId: courseId,
-    text: `'${title}' has been assigned to you all on the Peer Learning Platform. Please complete it in due time. Link of PL app - https://serene-agnesi-9ee115.netlify.app`,
-    state: 'PUBLISHED',
-  }
+  // const data = {
+  //   courseId: courseId,
+  //   text: `'${title}' has been assigned to you all on the Peer Learning Platform. Please complete it in due time. Link of PL app - https://serene-agnesi-9ee115.netlify.app`,
+  //   state: 'PUBLISHED',
+  // }
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${req.query.access_token}`,
-    },
-  }
+  // const options = {
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Bearer ${req.query.access_token}`,
+  //   },
+  // }
 
-  await axios
-    .post(
-      `${config.app.GC_API}/courses/${courseId}/drafts`,
+  // await axios
+  //   .post(
+  //     `${config.app.GC_API}/courses/${courseId}/drafts`,
+  //     data,
+  //     options
+  //   )
+  //   .then(async (responseData) => {
+  //     console.log(responseData.data)
+  //   })
+  //   .catch((err) => {
+  //     res.json({
+  //       message: 'Some error occured while making an Announcement on Google Classroom!',
+  //     })
+  //     console.log(`Some error occured while making an Announcement on Google Classroom ${err}`)
+  //     return;
+  //   })
+  try {
+    const data = {
+      courseId: courseId,
+      text: `'${title}' has been assigned to you all on the Peer Learning Platform. Please complete it in due time. Link of PL app - https://peerlearning.iiitvadodara.ac.in/`,
+      state: 'PUBLISHED',
+      assigneeMode: 'ALL_STUDENTS',
+    };
+
+    const options = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${req.query.access_token}`,
+      },
+    };
+
+    const response = await axios.post(
+      `${config.app.GC_API}/courses/${courseId}/announcements`,
       data,
       options
-    )
-    .then(async (responseData) => {
-      console.log(responseData.data)
-    })
-    .catch((err) => {
-      res.json({
-        message: 'Some error occured while making an Announcement on Google Classroom!',
-      })
-      console.log(err)
-    })
+    );
+
+    // Handle the response here (e.g., check for success status codes, log the result, etc.)
+    console.log('Assignment draft created:', response.data);
+  } catch (error) {
+    // Handle errors here (e.g., log the error, handle specific error cases, etc.)
+    console.error('Error creating assignment draft:', error);
+  }
+
 }
 
 function randomize(arr, n) {

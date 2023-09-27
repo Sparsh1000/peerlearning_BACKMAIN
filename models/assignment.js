@@ -27,13 +27,16 @@ const AssignmentSchema = new mongoose.Schema({
     required: true,
   },
   max_marks_per_question: {
-    type : Array,
+    type: Array,
     required: true,
   },
   reviewer_deadline: {
     type: String,
   },
   status: {
+    type: String,
+  },
+  modelAnswerSheetUrl: {
     type: String,
   },
 })

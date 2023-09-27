@@ -12,6 +12,7 @@ exports.addPeerReview = async (req, res) => {
   var marksArray = req.body.max_marks_per_question
   assignment.status = 'Added'
   assignment.total_questions = marksArray.length
+  assignment.modelAnswerSheetUrl = req.body.modelAnswerSheetUrl
 
   await axios
     .get(`${config.app.GC_API}/courses/${req.body.course_id}`, {
