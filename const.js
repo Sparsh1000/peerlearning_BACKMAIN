@@ -22,13 +22,14 @@ module.exports.borderColor = [
 
 
 const { MongoClient } = require('mongodb');
-const url ="mongodb+srv://admin:PeerLearning@cluster0.tgwbw4t.mongodb.net/peerlearning?retryWrites=true&w=majority";
+//const url ="mongodb+srv://admin:PeerLearning@cluster0.tgwbw4t.mongodb.net/peerlearning?retryWrites=true&w=majority";//authMechanism=DEFAULT
+//const url = "mongodb://admin:password@13.200.133.5:27017/peerlearning?authSource=admin&authMechanism=DEFAULT";
 const ops = { useUnifiedTopology: true, useNewUrlParser: true };
 
-    
+
 var client;
 
-module.exports.connect = function() {
+module.exports.connect = function () {
 
     client = MongoClient.connect(url, ops);
     return client;
@@ -37,7 +38,7 @@ module.exports.connect = function() {
 module.exports.hostname = '127.0.0.1';
 module.exports.port = 8000;
 
-module.exports.sum = function(arr) {
+module.exports.sum = function (arr) {
     let result = 0;
     for (let i = 0; i < arr.length; i++) {
         result += arr[i];
@@ -46,7 +47,7 @@ module.exports.sum = function(arr) {
     return result;
 }
 
-module.exports.average = function(arr) {
+module.exports.average = function (arr) {
     let result = 0;
 
     for (let i = 0; i < arr.length; i++) {

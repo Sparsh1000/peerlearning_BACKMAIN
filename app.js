@@ -22,12 +22,15 @@ const getAssignmentScoreRouter = require('./routes/Teacher/getAssignmentScore')
 const plotRouter = require('./routes/Analytics/Routes')
 const config = require('./config')
 const getyourReviewsRouter = require('./routes/Student/getyourReviews')
+const assignmentScheduler = require('./controllers/Teacher/assignmentScheduler')
+const freezeAssignmentRouter = require('./routes/Teacher/freezeAssignment')
 
 require('dotenv').config()
 
 // database connection
 mongoose.connect(
-  config.db.DB_URI,
+  //config.db.DB_URI,
+  process.env.DATABASE_URL,
   {
     useFindAndModify: false,
     useUnifiedTopology: true,
@@ -62,6 +65,7 @@ app.use('/api/activities', activitiesRouter) // get list of all assigned assignm
 app.use('/api/issues', getIssuesRouter) // get all issues on given peer_assignment_id
 app.use('/api/issue', addIssueRouter) // add new issue to the respective peer_activity_id
 app.use('/api/closeassignment', closeAssignmentRouter) // change status of the peer assignment to 'Grading'
+app.use('/api/freezeassignment', freezeAssignmentRouter) // change status of the peer assignment to 'freeze'
 app.use('/api/download', downloadRouter) // download score sheet (for Teachers)
 app.use('/api/logs', getLogsRouter) // download logs
 app.use('/api/reviews', getReviewsRouter) // get all reviews on the student dashboard
@@ -75,3 +79,4 @@ const PORT = process.env.PORT || 8000
 app.listen(PORT, function () {
   console.log(`Server is running on port ${PORT}`)
 })
+assignmentScheduler.start();

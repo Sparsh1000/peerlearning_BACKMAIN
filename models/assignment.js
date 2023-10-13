@@ -33,6 +33,12 @@ const AssignmentSchema = new mongoose.Schema({
   reviewer_deadline: {
     type: String,
   },
+  tolerance: {
+    type: Number,
+  },
+  isFreeze: {
+    type: Boolean,
+  },
   status: {
     type: String,
   },
