@@ -60,7 +60,7 @@ app.use('/api/peeractivity', peerActivityRouter) //(OPTIONAL route) get list of 
 app.use('/api/peer', peerAssignmentRouter) //get detailed information on that peer assignment
 app.use('/api/assignreviewers', assignReviewersRouter) // start peer learning on an assignment
 app.use('/api/reviewerassignments', reviewerAssignmentsRouter) // get all peer activities assigned to a reviewer for given course_work_id
-app.use('/api/reviewassignment', reviewAssignmentRouter) // add review of the reviewer on the given peer_activity_id
+app.use('/api/reviewassignment', reviewAssignmentRouter) // add review(give marks) of the reviewer on the given peer_activity_id
 app.use('/api/activities', activitiesRouter) // get list of all assigned assignments(activities) on given course_work_id
 app.use('/api/issues', getIssuesRouter) // get all issues on given peer_assignment_id
 app.use('/api/issue', addIssueRouter) // add new issue to the respective peer_activity_id

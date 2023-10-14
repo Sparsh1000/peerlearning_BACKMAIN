@@ -88,7 +88,7 @@ exports.assignReviewers = async (req, res) => {
           activity.save().then(
             (r) => {
               c++
-              console.log('Assigned Reviewer')
+              //console.log('Assigned Reviewer')
               if (c == count) {
                 res.status(201).json({
                   message: 'Assigned All Reviewers Successfully!',
@@ -238,7 +238,7 @@ function output(v, arr, k, n) {
     }
     p[arr[i]] = s
   }
-  console.log(p)
+  //console.log(p)
 }
 // Driver Code
 // var v = {
