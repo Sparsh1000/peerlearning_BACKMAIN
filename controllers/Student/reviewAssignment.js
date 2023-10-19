@@ -6,7 +6,7 @@ exports.reviewAssignment = async (req, res) => {
   var peerActivityId = req.body.peer_activity_id, title, peerAssignmentId
 
   await peerActivity.findById(peerActivityId, async (err, result) => {
-    if(err){
+    if (err) {
       res.json(err)
     } else {
       peerAssignmentId = await result.peerAssignment_id
@@ -15,7 +15,7 @@ exports.reviewAssignment = async (req, res) => {
   })
 
   await Assignment.findById(peerAssignmentId, async (err, result) => {
-    if(err){
+    if (err) {
       res.json(err)
     } else {
       title = await result.assignment_title

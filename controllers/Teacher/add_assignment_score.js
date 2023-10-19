@@ -17,8 +17,12 @@ exports.addAssignmentScore = async (req, res) => {
     assignment_score.Assignment_id = req.body.Assignment_id;
     assignment_score.final_grade = req.body.final_grade;
     await assignment_score.save().then(
-        console.log("Assignment Score Saved.")
+        (as) => {
+            console.log("Score Saved")
+            return res.json(as)
+        },
+        (err) => {
+            return res.json(err)
+        }
     )
-    console.log("reached")
-
 }

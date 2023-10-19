@@ -24,6 +24,7 @@ const config = require('./config')
 const getyourReviewsRouter = require('./routes/Student/getyourReviews')
 const assignmentScheduler = require('./controllers/Teacher/assignmentScheduler')
 const freezeAssignmentRouter = require('./routes/Teacher/freezeAssignment')
+const updateAssignmentScoreRouter = require('./routes/Teacher/update_assignment_score')
 
 require('dotenv').config()
 
@@ -73,10 +74,10 @@ app.use('/api/yourreviews', getyourReviewsRouter) // get student reviews given b
 app.use('/api/deleteassignment', deleteAssignmentRouter) // delete given peer_assignment_id
 app.use('/api/addassignmentscore', addAssignmentScoreRouter) // add assignment score for giver user_id
 app.use('/api/assignmentscore', getAssignmentScoreRouter) // get assignment score for given assignment_id
+app.use('/api/updatescore', updateAssignmentScoreRouter) //update student score(marks)
 app.use('/api/', plotRouter) // get all plot from plot1 to plot10
 const PORT = process.env.PORT || 8000
 
 app.listen(PORT, function () {
   console.log(`Server is running on port ${PORT}`)
 })
-assignmentScheduler.start();
