@@ -19,6 +19,7 @@
     "dataframe-js": "^1.4.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "fetch": "^1.1.0",
     "fs": "^0.0.1-security",
     "http": "^0.0.1-security",
     "json2csv": "^5.0.6",

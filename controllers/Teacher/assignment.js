@@ -42,8 +42,8 @@ exports.addPeerReview = async (req, res) => {
     )
     .then(async (data) => {
       assignment.assignment_title = await data.data.title
-      console.log('t1 ' + assignment.assignment_title)
-      console.log(data.data.title)
+      //console.log('t1 ' + assignment.assignment_title)
+      //console.log(data.data.title)
     })
     .catch((err) => {
       console.log('err2')

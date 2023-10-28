@@ -27,7 +27,7 @@ exports.closeAssignment = async (req, res) => {
             }
           )
           //console.log("HI")
-          console.log(r.status)
+          //console.log(r.status)
           res.json(r.status)
         }
       })
