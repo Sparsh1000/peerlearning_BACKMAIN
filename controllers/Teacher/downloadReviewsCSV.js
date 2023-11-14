@@ -25,6 +25,7 @@ exports.download = async (req, res) => {
     var l;
     var maxl;
     let csvString = "Student Name"; // Initialize CSV header
+    var numofQues = 0;
     const studentMap = new Map();
     const reviewerMap = new Map();
     function max(a, b) {
@@ -68,6 +69,25 @@ exports.download = async (req, res) => {
     await studentsR();
     const score = [];
     const rev = [];
+    const final_grade = [];
+    for (let i = 0; i < len; i++) {
+      final_grade[i] = 0;
+    }
+    for (let i = 0; i < len; i++) {
+      await AssignmentScore.find(
+        { Assignment_id: peerAssignmentId, User_id: studentID[i] },
+        async (err, result1) => {
+          if (err) {
+            console.log("erroor")
+          } else {
+            if (result1[0]) {
+              //console.log(result1[0].final_grade)
+              final_grade[i] = result1[0].final_grade;
+            }
+          }
+        }
+      )
+    }
     //const activities = await peerActivity.find({ peerAssignment_id: peerAssignmentId }).exec();
     for (let i = 0; i < len; i++) {
       await PeerActivity.find({ peerAssignment_id: peerAssignmentId, author_id: studentID[i] },
@@ -79,6 +99,9 @@ exports.download = async (req, res) => {
             l = result.length;
             maxl = max(maxl, l);
             //console.log(maxl);
+            for (let k = 0; k < l; k++) {
+              numofQues = max(numofQues, result[k].review_score.length);
+            }
             if (x) {
               for (let i = 0; i < len; i++) {
                 score[i] = []; // Initialize a new row
@@ -95,6 +118,10 @@ exports.download = async (req, res) => {
               x = 0;
               for (let i = 0; i < maxl; i++) {
                 csvString += `, Reviewer${i + 1}`
+                for (let j = 0; j < numofQues; j++) {
+                  csvString += `, Question ${j + 1}`
+                  if (j == numofQues - 1) csvString += `, Total Marks`
+                }
               }
               csvString += ",Final Score \n"
 
@@ -106,47 +133,46 @@ exports.download = async (req, res) => {
             //   });
             // }
             for (let k = 0; k < l; k++) {
+              numofQues = max(numofQues, result[k].review_score.length);
               for (let j = 0; j < result[k].review_score.length; j++) {
-                //console.log(score[i][k])
+                //console.log("QUES:" + numofQues)
                 score[i][k] += result[k].review_score[j];
                 //console.log(result[k].review_score[j])
               }
               rev[i][k] = result[k].reviewer_id;
               //console.log(score[i][k])
             }
+            //for (let i = 0; i < len; i++) {
+            csvString += `${name[i]}`;
+            for (let j = 0; j < maxl; j++) {
+              let studentName = studentMap.get(rev[i][j]);
+              if (!rev[i][j]) {
+                studentName = "No Submission"
+                //csvString += `, ${studentName} `;
+              }
+              //else {
+              csvString += `, ${studentName} `;
+              for (let k = 0; k < numofQues; k++) {
+                if (result[j]) {
+                  csvString += `, ${result[j].review_score[k]}`
+                }
+                else {
+                  csvString += `, -`
+                }
+                if (k == numofQues - 1) csvString += `, ${score[i][j]}`
+              }
+              //}
+
+            }
+            csvString += `,${final_grade[i]} \n`
+            //}
           }
         })
     }
-    const final_grade = [];
-    for (let i = 0; i < len; i++) {
-      final_grade[i] = 0;
-    }
-    for (let i = 0; i < len; i++) {
-      await AssignmentScore.find(
-        { Assignment_id: peerAssignmentId, User_id: studentID[i] },
-        async (err, result) => {
-          if (err) {
-            console.log("erroor")
-          } else {
-            if (result[0]) {
-              console.log(result[0].final_grade)
-              final_grade[i] = result[0].final_grade;
-            }
-          }
-        }
-      )
-    }
 
-    console.log(final_grade)
-    for (let i = 0; i < len; i++) {
-      csvString += `${name[i]}`;
-      for (let j = 0; j < maxl; j++) {
-        let studentName = studentMap.get(rev[i][j]);
-        if (!rev[i][j]) studentName = "No Submission"
-        csvString += `, ${studentName}--${score[i][j]}`;
-      }
-      csvString += `,${final_grade[i]} \n`
-    }
+
+    //console.log(final_grade)
+
     res.setHeader('Content-disposition', 'attachment; filename=Scores_sheet.csv');
     res.set('Content-Type', 'text/csv');
     res.status(200).send(csvString);
