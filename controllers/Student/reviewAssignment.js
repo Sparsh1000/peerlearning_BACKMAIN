@@ -29,6 +29,7 @@ exports.reviewAssignment = async (req, res) => {
       $set: {
         review_score: req.body.review_score,
         reviewer_comment: req.body.reviewer_comment,
+        time_stamp: new Date(),
       },
     },
     { new: true },

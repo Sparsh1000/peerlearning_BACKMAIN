@@ -11,6 +11,10 @@ exports.download = async (req, res) => {
   try {
     const peerAssignmentId = req.query.peer_assignment_id;
     const assignment = await Assignment.findById(peerAssignmentId).exec();
+    const onlyFinalGrade = 0;
+    const showTime = 1;
+    const showIndivisualQuestions = 1;
+    //const showAllStudents = 1;
 
     if (!assignment) {
       return res.status(404).json({ message: 'Assignment not found' });
@@ -19,6 +23,7 @@ exports.download = async (req, res) => {
     //console.log(courseId);
 
     const total_questions = assignment.total_questions;
+    const deadline = assignment.reviewer_deadline;
     var studentID = [];
     var name = [];
     var len;
@@ -31,6 +36,23 @@ exports.download = async (req, res) => {
     function max(a, b) {
       if (a > b) return a;
       else { return b; }
+    }
+    function compareDeadline(timestamp1, timestamp2) {
+      if (!timestamp2) return 0;
+      const date1 = new Date(timestamp1);
+      const date2 = new Date(timestamp2);
+
+      // Compare the two Date objects after converting to a common time zone (e.g., UTC)
+      const date1UTC = new Date(date1.toISOString());
+      const date2UTC = new Date(date2.toISOString());
+
+      // Now you can compare the two Date objects
+      if (date1UTC >= date2UTC) {
+        return 1;
+      }
+      else {
+        return -1;
+      }
     }
     const studentsR = async () => {
       try {
@@ -69,11 +91,13 @@ exports.download = async (req, res) => {
     await studentsR();
     const score = [];
     const rev = [];
+    const time = [];
+    const late = [];
     const final_grade = [];
     for (let i = 0; i < len; i++) {
       final_grade[i] = 0;
     }
-    for (let i = 0; i < len; i++) {
+    for (let i = 0; i < len; i++) {  //runs for all students len = no. of students
       await AssignmentScore.find(
         { Assignment_id: peerAssignmentId, User_id: studentID[i] },
         async (err, result1) => {
@@ -115,12 +139,32 @@ exports.download = async (req, res) => {
                   rev[i][j] = 0; // Set each element to zero
                 }
               }
+              for (let i = 0; i < len; i++) {
+                time[i] = []; // Initialize a new row
+                for (let j = 0; j < l; j++) {
+                  time[i][j] = 0; // Set each element to zero
+                }
+              }
+              for (let i = 0; i < len; i++) {
+                late[i] = []; // Initialize a new row
+                for (let j = 0; j < l; j++) {
+                  late[i][j] = 0; // Set each element to zero
+                }
+              }
               x = 0;
-              for (let i = 0; i < maxl; i++) {
-                csvString += `, Reviewer${i + 1}`
-                for (let j = 0; j < numofQues; j++) {
-                  csvString += `, Question ${j + 1}`
-                  if (j == numofQues - 1) csvString += `, Total Marks`
+              if (!onlyFinalGrade) {
+                for (let i = 0; i < maxl; i++) {
+                  csvString += `, Reviewer${i + 1}`
+                  for (let j = 0; j < numofQues; j++) {
+                    if (showIndivisualQuestions) {
+                      csvString += `, Q${j + 1}`
+                    }
+                    if (showTime) {
+                      if (j == numofQues - 1) csvString += `, Time of Submission`
+                      if (j == numofQues - 1) csvString += `, Late Submission`
+                    }
+                    if (j == numofQues - 1) csvString += `, Total Marks`
+                  }
                 }
               }
               csvString += ",Final Score \n"
@@ -140,29 +184,55 @@ exports.download = async (req, res) => {
                 //console.log(result[k].review_score[j])
               }
               rev[i][k] = result[k].reviewer_id;
+
+              time[i][k] = result[k].time_stamp;
+              late[i][k] = compareDeadline(deadline, result[k].time_stamp);
               //console.log(score[i][k])
             }
             //for (let i = 0; i < len; i++) {
-            csvString += `${name[i]}`;
-            for (let j = 0; j < maxl; j++) {
-              let studentName = studentMap.get(rev[i][j]);
-              if (!rev[i][j]) {
-                studentName = "No Submission"
-                //csvString += `, ${studentName} `;
-              }
-              //else {
-              csvString += `, ${studentName} `;
-              for (let k = 0; k < numofQues; k++) {
-                if (result[j]) {
-                  csvString += `, ${result[j].review_score[k]}`
-                }
-                else {
-                  csvString += `, -`
-                }
-                if (k == numofQues - 1) csvString += `, ${score[i][j]}`
-              }
-              //}
 
+            csvString += `${name[i]}`;
+
+            // else {
+            //   const a = []
+            //   for(let j=0;j<maxl;j++){
+            //     if(rev[i][j]) a[i] = 1;
+            //   }
+            //   csvString +=
+            // }
+
+            if (!onlyFinalGrade) {
+
+              for (let j = 0; j < maxl; j++) {
+                let studentName = studentMap.get(rev[i][j]);
+                if (!rev[i][j]) {
+                  studentName = "No Submission"
+                  //csvString += `, ${studentName} `;
+                }
+                //else {
+                csvString += `, ${studentName} `;
+                for (let k = 0; k < numofQues; k++) {
+                  if (showIndivisualQuestions) {
+                    if (result[j]) {
+                      csvString += `, ${result[j].review_score[k]}`
+                    }
+                    else {
+                      csvString += `, -`
+                    }
+                  }
+                  if (showTime) {
+                    if (k == numofQues - 1) csvString += `, ${time[i][j]}`
+                    if (k == numofQues - 1) {
+                      if (late[i][j] == 1) csvString += `, NO`
+                      else if (late[i][j] == 0) csvString += `, -`
+                      else if (late[i][j] == -1) csvString += `, YES`
+                    }
+                  }
+
+                  if (k == numofQues - 1) csvString += `, ${score[i][j]}`
+                }
+                //}
+              }
             }
             csvString += `,${final_grade[i]} \n`
             //}
