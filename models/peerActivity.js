@@ -30,7 +30,7 @@ const peerActivitySchema = new mongoose.Schema({
   },
   time_stamp: {
     type: String,
-    required: true,
+    required: false,
   },
 })
 

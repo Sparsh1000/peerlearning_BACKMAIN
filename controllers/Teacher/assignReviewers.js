@@ -14,11 +14,13 @@ exports.assignReviewers = async (req, res) => {
   var peerAssignmentId = req.query.peer_assignment_id
   var randomAssignees = req.query.random_assignees
   var courseId, courseWorkId, ownerID, title
-
+  //console.log("Hooo")
   await Assignment.findById(peerAssignmentId, async (err, result) => {
     if (err) {
       res.json(err)
+      console.log(err);
     } else {
+      //console.log("HIIIIIIIII")
       courseId = await result.course_id
       courseWorkId = await result.assignment_id
       ownerID = await result.owner
@@ -58,6 +60,7 @@ exports.assignReviewers = async (req, res) => {
               .alternateLink
           )
           let activity = new peerActivity()
+          //console.log("HEEEE")
           activity.peerAssignment_id = peerAssignmentId
           activity.author_id = submission.userId
           activity.reviewer_id = submission.userId

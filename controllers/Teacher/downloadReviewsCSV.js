@@ -11,9 +11,17 @@ exports.download = async (req, res) => {
   try {
     const peerAssignmentId = req.query.peer_assignment_id;
     const assignment = await Assignment.findById(peerAssignmentId).exec();
-    const onlyFinalGrade = 0;
-    const showTime = 1;
-    const showIndivisualQuestions = 1;
+    const options = Array.isArray(req.query.options) ? req.query.options : [req.query.options];
+    //console.log(options);
+    let onlyFinalGrade = 0;
+    let showTime = 0;
+    let showIndivisualQuestions = 0;
+    for (let i = 0; i < options.length; i++) {
+      if (options[i] == "onlyFinalGrade") onlyFinalGrade = 1;
+      if (options[i] == "showTime") showTime = 1;
+      if (options[i] == "showIndivisualQuestions") showIndivisualQuestions = 1;
+    }
+
     //const showAllStudents = 1;
 
     if (!assignment) {
@@ -24,6 +32,8 @@ exports.download = async (req, res) => {
 
     const total_questions = assignment.total_questions;
     const deadline = assignment.reviewer_deadline;
+    //console.log("HELLO-Down");
+    //console.log(deadline);
     var studentID = [];
     var name = [];
     var len;
@@ -45,9 +55,9 @@ exports.download = async (req, res) => {
       // Compare the two Date objects after converting to a common time zone (e.g., UTC)
       const date1UTC = new Date(date1.toISOString());
       const date2UTC = new Date(date2.toISOString());
-
+      //console.log(date2UTC);
       // Now you can compare the two Date objects
-      if (date1UTC >= date2UTC) {
+      if (date1UTC < date2UTC) {
         return 1;
       }
       else {
@@ -186,6 +196,7 @@ exports.download = async (req, res) => {
               rev[i][k] = result[k].reviewer_id;
 
               time[i][k] = result[k].time_stamp;
+              //console.log(result[k].time_stamp)
               late[i][k] = compareDeadline(deadline, result[k].time_stamp);
               //console.log(score[i][k])
             }
@@ -221,7 +232,14 @@ exports.download = async (req, res) => {
                     }
                   }
                   if (showTime) {
-                    if (k == numofQues - 1) csvString += `, ${time[i][j]}`
+                    if (k == numofQues - 1) {
+                      csvString += `, ${time[i][j]}`
+                      //const timestampValue = time[i][j] !== undefined ? time[i][j].trim() : '';
+
+                      // Add the timestamp value to the CSV, wrapped in double quotes
+                      // csvString += `, "${timestampValue}"`;
+
+                    }
                     if (k == numofQues - 1) {
                       if (late[i][j] == 1) csvString += `, NO`
                       else if (late[i][j] == 0) csvString += `, -`

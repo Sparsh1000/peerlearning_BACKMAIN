@@ -10,7 +10,7 @@ exports.reviewAssignment = async (req, res) => {
       res.json(err)
     } else {
       peerAssignmentId = await result.peerAssignment_id
-      console.log(peerAssignmentId)
+      //console.log(peerAssignmentId)
     }
   })
 
@@ -19,17 +19,23 @@ exports.reviewAssignment = async (req, res) => {
       res.json(err)
     } else {
       title = await result.assignment_title
-      console.log(result)
+      //console.log(result)
     }
   })
+  const istOptions = { timeZone: 'Asia/Kolkata' };
+  function timezzone() {
+    let ttime = new Date().toLocaleString('en-US', istOptions);
+    ttime = ttime.replace(/,/g, '-');
 
+    return ttime;
+  }
   await peerActivity.findByIdAndUpdate(
     peerActivityId,
     {
       $set: {
         review_score: req.body.review_score,
         reviewer_comment: req.body.reviewer_comment,
-        time_stamp: new Date(),
+        time_stamp: timezzone(),
       },
     },
     { new: true },
@@ -37,6 +43,7 @@ exports.reviewAssignment = async (req, res) => {
       if (err) {
         res.json(err)
       } else {
+        console.log(result)
         let log = new Log()
         log.user_id = result.reviewer_id
         log.event_type = 'REVIEWED_PEER_ACTIVITY'
@@ -45,7 +52,7 @@ exports.reviewAssignment = async (req, res) => {
         log.time_stamp = new Date()
         log.save().then(
           (r) => {
-            console.log('Saved Log')
+            console.log('Saved 2 Log')
             delete nowDate
           },
           (err) => {

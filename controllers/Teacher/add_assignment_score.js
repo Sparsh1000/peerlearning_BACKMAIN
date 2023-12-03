@@ -73,7 +73,7 @@ exports.addAssignmentScore = async (req, res) => {
 
         try {
             const updatedScore = await existingScore.save();
-            //   console.log("updatedScore");
+            //console.log("updatedScore");
             //   console.log(updatedScore);
             return res.status(200).json(updatedScore);
         } catch (err) {
